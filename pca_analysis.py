@@ -133,13 +133,33 @@ sns.set_style("whitegrid")
 # 输入路径
 FEATURIZED_DIR = "artifacts/featurized"
 
+def load_label_series(csv_path: str) -> pd.Series:
+    """
+    Robustly load a 1D label CSV.
+    Supports both formats:
+    - with header (e.g., column name 'class')
+    - without header (single-column, pure values)
+    """
+    # First try default header=0
+    df = pd.read_csv(csv_path)
+    if df.shape[1] == 1:
+        col0 = str(df.columns[0]).strip()
+        # If the "header" looks like a real label name, keep it.
+        # If it looks like a digit (common when the file actually has no header),
+        # fall back to header=None.
+        if col0.lower() in {"class", "label", "target", "y"} or not col0.isdigit():
+            return df.iloc[:, 0]
+    # Fallback: no header
+    df2 = pd.read_csv(csv_path, header=None)
+    return df2.iloc[:, 0]
+
 def load_featurized_data():
     """加载特征工程后的数据"""
     print("Loading featurized data...")
     X_train = pd.read_csv(os.path.join(FEATURIZED_DIR, "X_train_feat.csv"))
     X_test = pd.read_csv(os.path.join(FEATURIZED_DIR, "X_test_feat.csv"))
-    y_train = pd.read_csv(os.path.join(FEATURIZED_DIR, "y_train.csv"), header=None).iloc[:, 0]
-    y_test = pd.read_csv(os.path.join(FEATURIZED_DIR, "y_test.csv"), header=None).iloc[:, 0]
+    y_train = load_label_series(os.path.join(FEATURIZED_DIR, "y_train.csv"))
+    y_test = load_label_series(os.path.join(FEATURIZED_DIR, "y_test.csv"))
     
     print(f"Train shape: {X_train.shape}, Test shape: {X_test.shape}")
     return X_train, X_test, y_train, y_test

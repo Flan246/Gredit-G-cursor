@@ -37,6 +37,21 @@ os.makedirs(OUTDIR, exist_ok=True)
 PCA_DIR = "artifacts/pca_analysis"
 FEATURIZED_DIR = "artifacts/featurized"
 
+def load_label_series(csv_path: str) -> pd.Series:
+    """
+    Robustly load a 1D label CSV.
+    Supports both formats:
+    - with header (e.g., column name 'class')
+    - without header (single-column, pure values)
+    """
+    df = pd.read_csv(csv_path)
+    if df.shape[1] == 1:
+        col0 = str(df.columns[0]).strip()
+        if col0.lower() in {"class", "label", "target", "y"} or not col0.isdigit():
+            return df.iloc[:, 0]
+    df2 = pd.read_csv(csv_path, header=None)
+    return df2.iloc[:, 0]
+
 def load_data():
     """加载PCA主成分得分矩阵和标签"""
     print("Loading PCA principal component scores and labels...")
@@ -45,28 +60,12 @@ def load_data():
     X_train_pca = pd.read_csv(os.path.join(PCA_DIR, "X_train_pca.csv"))
     X_test_pca = pd.read_csv(os.path.join(PCA_DIR, "X_test_pca.csv"))
     
-    # 加载标签 - 处理可能的列名问题
-    y_train_raw = pd.read_csv(os.path.join(FEATURIZED_DIR, "y_train.csv"), header=None).iloc[:, 0]
-    y_test_raw = pd.read_csv(os.path.join(FEATURIZED_DIR, "y_test.csv"), header=None).iloc[:, 0]
-    
-    # 过滤掉非数值的行（可能是列名或其他文本）
-    # 只保留可以转换为数值的行
-    def clean_labels(series):
-        """清理标签，移除非数值行"""
-        cleaned = []
-        for val in series:
-            try:
-                # 尝试转换为数值
-                num_val = int(float(str(val)))
-                if num_val in [0, 1]:  # 只保留0或1
-                    cleaned.append(num_val)
-            except (ValueError, TypeError):
-                # 跳过非数值行（如列名"class"）
-                continue
-        return pd.Series(cleaned, dtype=int)
-    
-    y_train = clean_labels(y_train_raw)
-    y_test = clean_labels(y_test_raw)
+    # 加载标签（兼容有/无 header 两种格式）
+    y_train = load_label_series(os.path.join(FEATURIZED_DIR, "y_train.csv"))
+    y_test = load_label_series(os.path.join(FEATURIZED_DIR, "y_test.csv"))
+    # 规范为 0/1 整数
+    y_train = y_train.astype(int)
+    y_test = y_test.astype(int)
     
     # 确保X和y的长度一致
     min_len = min(len(X_train_pca), len(y_train))
