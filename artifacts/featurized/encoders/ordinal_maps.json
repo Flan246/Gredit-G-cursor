@@ -1,0 +1,22 @@
+{
+  "savings_status": {
+    "no known savings": 0,
+    "<100": 1,
+    "100<=X<500": 2,
+    "500<=X<1000": 3,
+    ">=1000": 4
+  },
+  "employment": {
+    "unemployed": 0,
+    "<1": 1,
+    "1<=X<4": 2,
+    "4<=X<7": 3,
+    ">=7": 4
+  },
+  "job": {
+    "unemp/unskilled non res": 0,
+    "unskilled resident": 1,
+    "skilled": 2,
+    "high qualif/self emp/mgmt": 3
+  }
+}

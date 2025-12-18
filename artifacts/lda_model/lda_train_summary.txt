@@ -1,0 +1,24 @@
+LDA Model Training Summary
+============================================================
+
+Training samples: 800
+Test samples: 200
+Number of principal components: 11
+Number of classes: 2
+
+Test Set Performance:
+------------------------------------------------------------
+Accuracy:  0.7150
+Precision: 0.5882
+Recall:    0.1667
+F1 Score:  0.2597
+ROC AUC:   0.6471
+PR AUC:    0.4455
+
+Top 5 Principal Components by Discriminant Coefficient:
+------------------------------------------------------------
+PC4_客户稳定性: -0.2851
+PC10_还款能力: -0.2570
+PC7_还款能力: -0.1942
+PC2_客户稳定性: -0.1904
+PC1_综合消费力: 0.1162

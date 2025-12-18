@@ -1,0 +1,7 @@
+{
+  "column": "credit_amount",
+  "lower_pct": 1.0,
+  "upper_pct": 99.0,
+  "lo": 425.83,
+  "hi": 12682.959999999997
+}
